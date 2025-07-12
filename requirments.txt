@@ -1,7 +1,8 @@
 fastapi
-uvicorn
-transformers
-torch
-torchaudio
+uvicorn[standard]
 jinja2
 python-multipart
+torch==2.1.0
+torchaudio==2.1.0
+transformers==4.40.1
+sentencepiece
