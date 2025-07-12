@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+
+# Ignore model weights
+model/*.safetensors
+model/*.pt
+model/*.bin
+model/*.pth
+
+# Ignore environment and IDE stuff
+.env
+venv/
+.vscode/
+.idea/
