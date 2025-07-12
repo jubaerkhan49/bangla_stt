@@ -18,7 +18,7 @@ templates = Jinja2Templates(directory="templates")
 # model = Wav2Vec2ForCTC.from_pretrained(MODEL_PATH)
 
 # Load model from Hugging Face
-HF_MODEL_ID = "https://huggingface.co/jubaerkhan49/bangla_stt"
+HF_MODEL_ID = "jubaerkhan49/bangla_stt"
 processor = Wav2Vec2Processor.from_pretrained(HF_MODEL_ID)
 model = Wav2Vec2ForCTC.from_pretrained(HF_MODEL_ID)
 
