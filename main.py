@@ -4,12 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.concurrency import run_in_threadpool
 
-import torchaudio
 import torch
 import os
 import io
-
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+import librosa
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -45,14 +44,11 @@ async def transcribe(file: UploadFile = File(...)):
     file_stream = io.BytesIO(contents)
 
     def process_audio():
-        # Load and resample if needed
-        waveform, sr = torchaudio.load(file_stream)
-        if sr != 16000:
-            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=16000)
-            waveform = resampler(waveform)
+        # Load audio & resample to 16kHz using librosa
+        waveform, sr = librosa.load(file_stream, sr=16000)  # force resample
+        waveform_tensor = torch.tensor(waveform).float()
 
-        # Transcribe
-        input_values = processor(waveform.squeeze(), sampling_rate=16000, return_tensors="pt").input_values
+        input_values = processor(waveform_tensor, sampling_rate=16000, return_tensors="pt").input_values
         with torch.no_grad():
             logits = model(input_values).logits
         predicted_ids = torch.argmax(logits, dim=-1)
