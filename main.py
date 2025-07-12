@@ -7,8 +7,9 @@ from starlette.concurrency import run_in_threadpool
 import torch
 import os
 import io
+
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
-import librosa
+import soundfile as sf
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -44,11 +45,20 @@ async def transcribe(file: UploadFile = File(...)):
     file_stream = io.BytesIO(contents)
 
     def process_audio():
-        # Load audio & resample to 16kHz using librosa
-        waveform, sr = librosa.load(file_stream, sr=16000)  # force resample
-        waveform_tensor = torch.tensor(waveform).float()
+        # Load audio using soundfile (CPU friendly)
+        waveform, sr = sf.read(file_stream)
+        
+        if sr != 16000:
+            import librosa
+            waveform = librosa.resample(waveform.T, orig_sr=sr, target_sr=16000).T
+            sr = 16000
 
-        input_values = processor(waveform_tensor, sampling_rate=16000, return_tensors="pt").input_values
+        # Make sure waveform is a tensor
+        waveform_tensor = torch.tensor(waveform).float()
+        if waveform_tensor.dim() > 1:
+            waveform_tensor = waveform_tensor.mean(dim=1)  # convert stereo to mono
+
+        input_values = processor(waveform_tensor, sampling_rate=sr, return_tensors="pt").input_values
         with torch.no_grad():
             logits = model(input_values).logits
         predicted_ids = torch.argmax(logits, dim=-1)

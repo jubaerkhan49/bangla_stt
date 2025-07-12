@@ -6,3 +6,4 @@ torch
 transformers
 sentencepiece
 librosa
+soundfile
