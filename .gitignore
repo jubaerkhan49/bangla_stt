@@ -12,3 +12,6 @@ model/*.pth
 venv/
 .vscode/
 .idea/
+
+# Extras
+upload_model.py

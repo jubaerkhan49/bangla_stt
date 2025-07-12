@@ -2,72 +2,481 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Speech to Text</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech to Text - Bangla Transcription</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      --hover-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      padding: 2rem 1rem;
+    }
+
+    .main-title {
+      background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--hover-shadow);
+    }
+
+    .card-header-custom {
+      background: var(--primary-gradient);
+      color: white;
+      border-radius: 20px 20px 0 0 !important;
+      border: none;
+      padding: 1rem;
+    }
+
+    .card-header-custom h5 {
+      margin: 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .btn-custom {
+      border: none;
+      border-radius: 50px;
+      padding: 12px 30px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-custom::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-custom:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary-custom {
+      background: var(--primary-gradient);
+      color: white;
+    }
+
+    .btn-success-custom {
+      background: var(--success-gradient);
+      color: white;
+    }
+
+    .btn-danger-custom {
+      background: var(--danger-gradient);
+      color: white;
+    }
+
+    .btn-secondary-custom {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: white;
+    }
+
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-custom {
+      position: absolute;
+      left: -9999px;
+    }
+
+    .file-input-label {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: 2px dashed #6c757d;
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+    }
+
+    .file-input-label:hover {
+      border-color: #495057;
+      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    }
+
+    .visualizer-container {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      border-radius: 15px;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .visualizer-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+      pointer-events: none;
+    }
+
+    #visualizer {
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+    }
+
+    .output-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    .output-header {
+      background: var(--secondary-gradient);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .output-content {
+      padding: 1.5rem;
+    }
+
+    .output-text {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 15px;
+      padding: 1rem;
+      min-height: 80px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .control-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #6c757d;
+      display: inline-block;
+      margin-right: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .status-indicator.recording {
+      background: #dc3545;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .feature-icon {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .main-title {
+        font-size: 2rem;
+      }
+      
+      .control-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .btn-custom {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
 
 <div class="container py-5">
-  <h1 class="text-center mb-4">🎤 Bangla Speech Transcription App 🎤</h1>
+  <h1 class="main-title">
+    <i class="fas fa-microphone"></i> Bangla Speech Transcription
+  </h1>
 
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title">Pre-Recorded Audio File</h5>
-      <input type="file" id="audioFile" accept=".wav" class="form-control mb-2">
-      <button onclick="uploadFile()" class="btn btn-primary">Transcribe Uploaded File</button>
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <!-- File Upload Section -->
+      <div class="feature-card h-100">
+        <div class="card-header-custom">
+          <h5>
+            <i class="fas fa-file-audio feature-icon"></i>
+            Upload Audio File
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="file-input-wrapper mb-3">
+            <input type="file" id="audioFile" accept=".wav" class="file-input-custom">
+            <label for="audioFile" class="file-input-label">
+              <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-primary"></i>
+              <div class="fw-bold">Choose WAV file or drag & drop</div>
+              <small class="text-muted">Supports .wav format only</small>
+            </label>
+          </div>
+          <button onclick="uploadFile()" class="btn btn-custom btn-primary-custom">
+            <i class="fas fa-magic"></i> Transcribe File
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-6">
+      <!-- Microphone Recording Section -->
+      <div class="feature-card h-100">
+        <div class="card-header-custom">
+          <h5>
+            <i class="fas fa-microphone feature-icon"></i>
+            Live Recording
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="control-group">
+            <button id="recordBtn" class="btn btn-custom btn-success-custom">
+              <i class="fas fa-record-vinyl"></i> Start Recording
+            </button>
+            <button id="stopBtn" class="btn btn-custom btn-danger-custom" disabled>
+              <i class="fas fa-stop"></i> Stop & Transcribe
+            </button>
+            <div class="ms-auto d-flex align-items-center">
+              <span class="status-indicator" id="statusIndicator"></span>
+              <span id="statusText" class="fw-bold">Ready</span>
+            </div>
+          </div>
+
+          <div class="visualizer-container">
+            <canvas id="visualizer" width="100%" height="80" class="w-100"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title">Record from Microphone</h5>
-      <button id="recordBtn" class="btn btn-success me-2">Start Recording</button>
-      <button id="stopBtn" class="btn btn-danger" disabled>Stop & Transcribe</button>
+  <!-- Transcription Output Section -->
+  <div class="output-section">
+    <div class="output-header">
+      <h5 class="mb-0">
+        <i class="fas fa-file-alt feature-icon"></i>
+        Transcription Result
+      </h5>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">📝 Transcription Output</h5>
-      <p id="output" class="form-control bg-white" style="min-height: 100px;"></p>
-      <button onclick="clearOutput()" class="btn btn-secondary mt-2">Clear</button>
+    <div class="output-content">
+      <div id="output" class="output-text">
+        Your transcription will appear here...
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <button onclick="clearOutput()" class="btn btn-custom btn-secondary-custom">
+          <i class="fas fa-trash"></i> Clear
+        </button>
+        <button onclick="copyOutput()" class="btn btn-custom btn-primary-custom">
+          <i class="fas fa-copy"></i> Copy Text
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <script src="/static/recorder.js"></script>
 <script>
-  let recorder, audioStream;
+  let recorder, audioStream, audioContext, analyser, dataArray, animationId;
+
+  const canvas = document.getElementById('visualizer');
+  const canvasCtx = canvas.getContext('2d');
+  const statusIndicator = document.getElementById('statusIndicator');
+  const statusText = document.getElementById('statusText');
+
+  // Set canvas size
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = 80;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function updateStatus(status, isRecording = false) {
+    statusText.textContent = status;
+    statusIndicator.className = `status-indicator ${isRecording ? 'recording' : ''}`;
+  }
+
+  function drawVisualizer() {
+    const WIDTH = canvas.width;
+    const HEIGHT = canvas.height;
+
+    analyser.getByteTimeDomainData(dataArray);
+
+    // Create gradient for waveform
+    const gradient = canvasCtx.createLinearGradient(0, 0, WIDTH, 0);
+    gradient.addColorStop(0, '#4facfe');
+    gradient.addColorStop(1, '#00f2fe');
+
+    canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    canvasCtx.lineWidth = 2;
+    canvasCtx.strokeStyle = gradient;
+    canvasCtx.beginPath();
+
+    let sliceWidth = WIDTH * 1.0 / dataArray.length;
+    let x = 0;
+
+    for (let i = 0; i < dataArray.length; i++) {
+      let v = dataArray[i] / 128.0;
+      let y = v * HEIGHT / 2;
+
+      if (i === 0) {
+        canvasCtx.moveTo(x, y);
+      } else {
+        canvasCtx.lineTo(x, y);
+      }
+
+      x += sliceWidth;
+    }
+
+    canvasCtx.lineTo(WIDTH, HEIGHT / 2);
+    canvasCtx.stroke();
+
+    animationId = requestAnimationFrame(drawVisualizer);
+  }
 
   document.getElementById('recordBtn').onclick = async function () {
-    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const input = audioContext.createMediaStreamSource(audioStream);
-    recorder = new Recorder(input, { numChannels: 1 });
-    recorder.record();
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    document.getElementById('recordBtn').disabled = true;
-    document.getElementById('stopBtn').disabled = false;
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const input = audioContext.createMediaStreamSource(audioStream);
+      
+      // Setup analyser
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.8;
+
+      const bufferLength = analyser.fftSize;
+      dataArray = new Uint8Array(bufferLength);
+      
+      input.connect(analyser);
+      drawVisualizer();
+
+      // Setup recorder
+      recorder = new Recorder(input, { numChannels: 1 });
+      recorder.record();
+
+      updateStatus('Recording...', true);
+      document.getElementById('recordBtn').disabled = true;
+      document.getElementById('stopBtn').disabled = false;
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      updateStatus('Error accessing microphone');
+    }
   };
 
   document.getElementById('stopBtn').onclick = function () {
     recorder.stop();
-
-    // Stop microphone access
     audioStream.getTracks().forEach(track => track.stop());
+    cancelAnimationFrame(animationId);
+    
+    // Clear canvas with gradient
+    const gradient = canvasCtx.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+    canvasCtx.fillStyle = gradient;
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Export WAV and send to backend
+    updateStatus('Processing...');
+
     recorder.exportWAV(async function (blob) {
       const formData = new FormData();
       formData.append('file', blob, 'recorded_audio.wav');
 
-      const response = await fetch('/transcribe/', {
-        method: 'POST',
-        body: formData
-      });
+      try {
+        const response = await fetch('/transcribe/', {
+          method: 'POST',
+          body: formData
+        });
 
-      const data = await response.json();
-      document.getElementById('output').innerText = "Transcription: " + data.transcription;
+        const data = await response.json();
+        document.getElementById('output').innerHTML = data.transcription || 'No transcription available';
+        updateStatus('Transcription complete');
+      } catch (error) {
+        console.error('Error during transcription:', error);
+        document.getElementById('output').innerHTML = 'Error during transcription. Please try again.';
+        updateStatus('Error occurred');
+      }
 
       document.getElementById('recordBtn').disabled = false;
       document.getElementById('stopBtn').disabled = true;
@@ -76,21 +485,113 @@
 
   async function uploadFile() {
     const fileInput = document.getElementById('audioFile');
+    
+    if (!fileInput.files || !fileInput.files[0]) {
+      alert('Please select a file first');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
 
-    const response = await fetch('/transcribe/', {
-      method: 'POST',
-      body: formData
-    });
+    try {
+      updateStatus('Uploading and processing...');
+      const response = await fetch('/transcribe/', {
+        method: 'POST',
+        body: formData
+      });
 
-    const data = await response.json();
-    document.getElementById('output').innerText = data.transcription;
+      const data = await response.json();
+      document.getElementById('output').innerHTML = data.transcription || 'No transcription available';
+      updateStatus('Transcription complete');
+    } catch (error) {
+      console.error('Error during file upload:', error);
+      document.getElementById('output').innerHTML = 'Error during transcription. Please try again.';
+      updateStatus('Error occurred');
+    }
   }
 
   function clearOutput() {
-    document.getElementById('output').innerText = "";
+    document.getElementById('output').innerHTML = 'Your transcription will appear here...';
+    updateStatus('Ready');
   }
+
+  function copyOutput() {
+    const outputText = document.getElementById('output').textContent;
+    if (outputText && outputText !== 'Your transcription will appear here...') {
+      navigator.clipboard.writeText(outputText).then(() => {
+        // Show temporary success message
+        const originalText = statusText.textContent;
+        updateStatus('Copied to clipboard!');
+        setTimeout(() => {
+          updateStatus(originalText);
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  }
+
+  // File input drag and drop functionality
+  const fileInputLabel = document.querySelector('.file-input-label');
+  const fileInput = document.getElementById('audioFile');
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    fileInputLabel.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    fileInputLabel.addEventListener(eventName, highlight, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    fileInputLabel.addEventListener(eventName, unhighlight, false);
+  });
+
+  function highlight(e) {
+    fileInputLabel.style.borderColor = '#495057';
+    fileInputLabel.style.backgroundColor = '#e9ecef';
+  }
+
+  function unhighlight(e) {
+    fileInputLabel.style.borderColor = '#6c757d';
+    fileInputLabel.style.backgroundColor = '#f8f9fa';
+  }
+
+  fileInputLabel.addEventListener('drop', handleDrop, false);
+
+  function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length > 0) {
+      fileInput.files = files;
+      updateFileInputLabel(files[0]);
+    }
+  }
+
+  fileInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+      updateFileInputLabel(e.target.files[0]);
+    }
+  });
+
+  function updateFileInputLabel(file) {
+    const label = document.querySelector('.file-input-label');
+    label.innerHTML = `
+      <i class="fas fa-file-audio fa-2x mb-2 text-success"></i>
+      <div class="fw-bold">${file.name}</div>
+      <small class="text-muted">File selected - Ready to transcribe</small>
+    `;
+  }
+
+  // Initialize status
+  updateStatus('Ready');
 </script>
 </body>
 </html>
