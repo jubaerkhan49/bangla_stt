@@ -12,10 +12,15 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Load model
-MODEL_PATH = "./model"
-processor = Wav2Vec2Processor.from_pretrained(MODEL_PATH)
-model = Wav2Vec2ForCTC.from_pretrained(MODEL_PATH)
+# # Load model
+# MODEL_PATH = "./model"
+# processor = Wav2Vec2Processor.from_pretrained(MODEL_PATH)
+# model = Wav2Vec2ForCTC.from_pretrained(MODEL_PATH)
+
+# Load model from Hugging Face
+HF_MODEL_ID = "https://huggingface.co/jubaerkhan49/bangla_stt"
+processor = Wav2Vec2Processor.from_pretrained(HF_MODEL_ID)
+model = Wav2Vec2ForCTC.from_pretrained(HF_MODEL_ID)
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
